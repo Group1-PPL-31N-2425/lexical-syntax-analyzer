@@ -10,6 +10,8 @@ public class Lexer {
   private int cursor;
   private TokenType[] tokenTypes = {
       new TokenType("^\\s+", "WHITESPACE"),
+      new TokenType("^//.*", "COMMENT"),
+      new TokenType("^/*[\\s\\S]*?\\*/", "COMMENT"),
       new TokenType("^[a-zA-Z_][a-zA-Z0-9_]*", "WORD"),
       new TokenType("^\\d+\\.\\d+", "REAL"),
       new TokenType("^\\d+", "INTEGER"),
@@ -22,6 +24,8 @@ public class Lexer {
       new HashSet<>(Arrays.asList("if", "else", "return", "for", "while"));
   private final HashSet<String> dataTypeSet =
       new HashSet<>(Arrays.asList("int", "float", "char", "string", "bool"));
+  private final HashSet<String> booleanSet =
+      new HashSet<>(Arrays.asList("true", "false"));
 
   public Lexer(String input) {
     this.tokens = new ArrayList<>();
@@ -34,7 +38,7 @@ public class Lexer {
       Token token = this.nextToken();
 
       if (token != null) {
-        if (token.getType().equals("WHITESPACE"))
+        if (token.getType().equals("WHITESPACE") || token.getType().equals("COMMENT"))
           continue;
         this.tokens.add(token);
       } else {
@@ -63,6 +67,8 @@ public class Lexer {
             token.setType("KEYWORD");
           else if (dataTypeSet.contains(lexeme))
             token.setType("DATA_TYPE");
+          else if (booleanSet.contains(lexeme))
+            token.setType("BOOLEAN");
           else
             token.setType("IDENTIFIER");
         }
